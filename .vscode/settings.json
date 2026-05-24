@@ -1,0 +1,8 @@
+{
+  "C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
+  "code-runner.executorMap": {
+    "cpp": "cd $workspaceRoot && C:/msys64/ucrt64/bin/g++.exe -g main.cpp funciones.cpp -o TPI-VS-LosCincoDemonios.exe && .\\TPI-VS-LosCincoDemonios.exe"
+  },
+  "code-runner.runInTerminal": true,
+  "code-runner.saveFileBeforeRun": true
+}
