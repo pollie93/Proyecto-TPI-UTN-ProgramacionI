@@ -4,6 +4,13 @@
 #include <ctime>
 using namespace std;
 
+// CREO VARIABLES GLOBALES PARA TENER DISPONIBLES EN TODO EL PROYECTO
+const int TOTAL_INVOCACIONES = 15; //(todavia no la use)
+int victoriasTotales = 0;
+int derrotasTotales = 0;
+int invocacionesUsadas = 0;
+int totalDemoniosSellados = 0; //(todavia no la use)
+
 // DEFINO funcion para pedir nombre del jugador
 string solicitarNombreDescendiente()
 {
@@ -56,7 +63,7 @@ void showMessageVictory(const string &nombreDescendiente1)
          << "FIN DE LA PARTIDA - VICTORIA " << endl;
     cout << endl
          << "Sellaste a los cinco demonios" << endl;
-    cout << "Invocaciones utilizadas 12 de 15" << endl;
+    cout << "Invocaciones utilizadas " << invocacionesUsadas << "de 15" << endl;
 
     cout << "Presiona cualquier tecla para continuar..." << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -69,13 +76,6 @@ int tirarDado()
 {
     return (rand() % 6) + 1; // funcion aleatoria que genera un rango de 1 a 6
 }
-
-// CREO VARIABLES GLOBALES PARA TENER DISPONIBLES EN TODO EL PROYECTO
-const int TOTAL_INVOCACIONES = 15; //(todavia no la use)
-int victoriasTotales = 0;
-int derrotasTotales = 0;
-int invocacionesUsadas = 0;
-int totalDemoniosSellados = 0; //(todavia no la use)
 
 void menuPrincipal()
 {
@@ -196,8 +196,10 @@ void jugar(const string &nombreDescendiente1)
     if (demoniosSellados == CANT_DEMONIOS)
     {
         cout << "¡Has sellado a todos los demonios! HAS GANADO." << endl;
-        showMessageVictory(nombreDescendiente1);
+
         victoriasTotales++;
+        invocacionesUsadas = tiradaActual;
+        showMessageVictory(nombreDescendiente1);
     }
     else
     {
@@ -213,10 +215,9 @@ void estadisticas(const string &nombreDescendiente1)
 {
     int totalDePartidas = victoriasTotales + derrotasTotales;
     int cantDemoniosSellados = 5;
-    int totalDeInvocacionesHechas = 12;
     cout << "PANTALLA ESTADISTICAS" << endl
          << endl;
-    cout << nombreDescendiente1 << " fue quien sello a los " << cantDemoniosSellados << " demonios mas rapidamente en " << totalDeInvocacionesHechas << " invocaciones" << endl;
+    cout << nombreDescendiente1 << " fue quien sello a los " << cantDemoniosSellados << " demonios mas rapidamente en " << invocacionesUsadas << " invocaciones" << endl;
     cout << endl;
     cout << "TOTAL DE PARTIDAS: " << totalDePartidas << endl;
     cout << "VICTORIAS: " << victoriasTotales << endl;
