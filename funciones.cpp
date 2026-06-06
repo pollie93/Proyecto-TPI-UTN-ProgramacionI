@@ -4,38 +4,44 @@
 #include <ctime>
 using namespace std;
 
-// CREO VARIABLES GLOBALES PARA TENER DISPONIBLES EN TODO EL PROYECTO
-const int TOTAL_INVOCACIONES = 15; //(todavia no la use)
-int victoriasTotales = 0;
-int derrotasTotales = 0;
-int invocacionesUsadas = 0;
-int totalDemoniosSellados = 0; //(todavia no la use)
-
-// DEFINO funcion para pedir nombre del jugador
+// Funcion que pide el nombre del descendiente
 string solicitarNombreDescendiente()
 {
-    string nombreDescendiente1;
-    cout << "Ingrese el nombre del descendiente: " << endl;
-    cin >> nombreDescendiente1;
-    return nombreDescendiente1;
+    string nombreJugadorActual;
+    char confirmar;
+
+    // TODO: FALTARIA AJUSTAR QUE CUANDO INGRESA UN SI o un si, LO TOME
+    do
+    {
+        cout << " ----------- Ingrese el nombre del jugador: -----------" << endl;
+        cin >> nombreJugadorActual;
+        cout << endl;
+        cout << "El nombre " << nombreJugadorActual << " es correcto?" << endl
+             << endl;
+        cout << " ::: Confirmar (S/N) :::" << endl;
+        cin >> confirmar;
+        cout << endl;
+    } while (confirmar != 'S');
+
+    return nombreJugadorActual;
 }
 
 // Fn que muestra msj de derrota
-void showMessageDefeat(const string &nombreDescendiente1)
+void showMessageDefeat(string nombreJugadorActual, const int TIRADAS_TOTALES)
 {
+    // TODO: Falta colocar los nombres de los demonios sellados y demonios libres
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
     cout << endl
          << "AMANECE Y LOS SIGILOS SIGUEN BRILLANDO. " << endl;
     cout << endl
-         << nombreDescendiente1 << " no logró completar el ritual a tiempo. " << endl;
-    cout << endl
-         << "Las sombras restantes lo arrastraron entre las páginas del libro, " << endl;
+         << nombreJugadorActual << " no logró completar el ritual a tiempo. " << endl;
+    cout << "Las sombras restantes lo arrastraron entre las páginas del libro, " << endl;
     cout << "donde ahora custodiará el Necronomicón hasta que otro descendiente" << endl;
     cout << "repita el ritual. " << endl;
     cout << endl
-         << "FIN DE LA PARTIDA - DERROTA " << endl;
+         << "::: FIN DE LA PARTIDA - DERROTA :::" << endl;
     cout << endl
-         << "invocaciones" << endl;
+         << TIRADAS_TOTALES << " invocaciones agotadas" << endl;
     cout << "Demonios sellados:" << endl;
     cout << "Demonios libres" << endl;
     cout << endl
@@ -46,7 +52,7 @@ void showMessageDefeat(const string &nombreDescendiente1)
 }
 
 // Fn que muestra msj de victoria
-void showMessageVictory(const string &nombreDescendiente1)
+void showMessageVictory(string nombreJugadorActual, int invocacionesJugadorGuardado)
 {
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
     cout << endl
@@ -55,7 +61,7 @@ void showMessageVictory(const string &nombreDescendiente1)
          << "Los cinco sigilos se apagaron uno tras otro. " << endl;
     cout << "El Necronomicón se cerró por sí solo y volvió a sellarse. " << endl;
     cout << endl
-         << nombreDescendiente1 << " sobrevivió a la noche más larga de su vida. " << endl;
+         << nombreJugadorActual << " sobrevivió a la noche más larga de su vida. " << endl;
 
     cout << endl
          << "Los Antiguos no regresarán... por ahora. " << endl;
@@ -63,7 +69,7 @@ void showMessageVictory(const string &nombreDescendiente1)
          << "FIN DE LA PARTIDA - VICTORIA " << endl;
     cout << endl
          << "Sellaste a los cinco demonios" << endl;
-    cout << "Invocaciones utilizadas " << invocacionesUsadas << "de 15" << endl;
+    cout << "Invocaciones utilizadas " << invocacionesJugadorGuardado << "de 15" << endl;
 
     cout << "Presiona cualquier tecla para continuar..." << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -79,17 +85,37 @@ int tirarDado()
 
 void menuPrincipal()
 {
+    // variables a usar, se colocan en este nivel para que puedan estar disponibles en las funciones jugar y estadisticas, para que se pasen dinamicamente
+    const int CANT_DEMONIOS = 5;
+    const int TIRADAS_TOTALES = 15;
+
+    const string NOMBRES_DEMONIOS[] = {"Baramos", "Dracolord", "Darck", "WhiteKing", "Lazamanus"};
+    const string ELEMENTOS_SOMBRAS[] = {"Sombra del Fuego", "Sombra del Agua", "Sombra de la Tierra", "Sombra del Aire", "Sombra Mayor"};
+
+    int tiradaActual = 0;
+
+    bool estado_sigilos[5] = {};
+    bool demonios_disponibles[5] = {};
+
     int opcion;
-    string nombreDescendiente1;
+    int invocacionesJugadorGuardado;
+
+    int victoriasTotales = 0;
+    int derrotasTotales = 0;
+    int demoniosSellados = 0;
+
+    string nombreJugadorActual;
+    string nombreJugadorGuardado;
 
     do
+    // system("cls") limpia la pantalla
     {
-        cout << "LOS CINCO DEMONIOS" << endl;
-        cout << "------------------" << endl;
+        cout << " ::::: LOS CINCO DEMONIOS :::::" << endl;
+        cout << "------------------------------" << endl;
         cout << " 1 - JUGAR" << endl;
         cout << " 2 - ESTADISTICAS" << endl;
         cout << " 3 - CREDITOS" << endl;
-        cout << "------------------" << endl;
+        cout << "------------------------------" << endl;
         cout << "0 - SALIR" << endl
              << endl;
         cout << "Ingresar la opcion elegida" << endl;
@@ -100,14 +126,13 @@ void menuPrincipal()
         {
             {
             case 1:
-                nombreDescendiente1 = solicitarNombreDescendiente();
-                jugar(nombreDescendiente1);
+                nombreJugadorActual = solicitarNombreDescendiente();
+                jugar(nombreJugadorActual, nombreJugadorGuardado, invocacionesJugadorGuardado, victoriasTotales, demoniosSellados, CANT_DEMONIOS, derrotasTotales, TIRADAS_TOTALES, NOMBRES_DEMONIOS, ELEMENTOS_SOMBRAS, tiradaActual);
                 break;
             }
             {
             case 2:
-
-                estadisticas(nombreDescendiente1);
+                estadisticas(nombreJugadorActual, nombreJugadorGuardado, invocacionesJugadorGuardado, victoriasTotales, derrotasTotales, CANT_DEMONIOS, TIRADAS_TOTALES);
                 break;
             }
             {
@@ -116,35 +141,83 @@ void menuPrincipal()
                 break;
             }
         }
+        // system("pause > nul") limpia la pantalla con >null hace una pausa
 
     } while (opcion != 0);
 }
 
-// Funcion principal (cdo eligen opcion jugar)
-void jugar(const string &nombreDescendiente1)
+// ---Funcion que ejecuta el lore del juego
+void lore(string nombreJugadorActual)
 {
-    cout << "Iniciando juego para: " << nombreDescendiente1 << endl;
-    // cout << " MOSTRANDO CANTIDAD DE TIRADAS? " << invocacionesRestantes << endl;
-
-    // string nombreDescendiente = solicitarNombreDescendiente();
-    const int TIRADAS_TOTALES = 15;
-    int demoniosSellados = 0; // Contador de demonios sellados
-    int tiradaActual = 0;     // Contador
-    bool estado_sigilos[5] = {false, false, false, false, false};
-    bool demonios_disponibles[5] = {false, false, false, false, false}; // ACA
-
-    const string NOMBRES_DEMONIOS[] = {"Baramos", "Dracolord", "Darck", "WhiteKing", "Lazamanus"};
-    const string ELEMENTOS_SOMBRAS[] = {"Sombra del Fuego", "Sombra del Agua", "Sombra de la Tierra", "Sombra del Aire", "Sombra Mayor"};
-    const int CANT_DEMONIOS = 5; // Constante para comparar si hay demonios sellados.
-
-    cout << "-----------------------------------------------------" << endl;
+    cout << "Iniciando juego para: " << nombreJugadorActual << endl
+         << endl;
+    cout << "----------------------------------------------------------" << endl;
     cout << "Otoño de 2026. La biblioteca de tu familia profanada." << endl;
     cout << "El Necronomicón abierto. Cinco sigilos brillan en rojo." << endl;
     cout << "Las sombras vagan por el mundo. Solo vos podés sellarlas." << endl;
     cout << "Tenés 15 invocaciones antes del amanecer. Sellalas." << endl;
-    cout << "-----------------------------------------------------" << endl;
+    cout << "----------------------------------------------------------" << endl;
+}
+
+// Funcion de derrota
+void derrota(int &derrotasTotales, string nombreJugadorActual, const int TIRADAS_TOTALES)
+{
+    derrotasTotales++;
+    showMessageDefeat(nombreJugadorActual, TIRADAS_TOTALES);
+}
+
+// funcion de victoria
+void ganar(int &victoriasTotales, int demoniosSellados, int CANT_DEMONIOS, string &nombreJugadorGuardado, string nombreJugadorActual, int tiradaActual, int &invocacionesJugadorGuardado)
+{
+    victoriasTotales++;
+    if (demoniosSellados == CANT_DEMONIOS)
+    {
+        cout << "Ganaste." << endl;
+        if (nombreJugadorGuardado == "") // si el nombre del jugador guardado esta vacio
+        {
+            nombreJugadorGuardado = nombreJugadorActual;
+            invocacionesJugadorGuardado = tiradaActual;
+            cout << "ganaste y pasas a ser el primer ganador" << endl;
+        }
+        else if (nombreJugadorGuardado == nombreJugadorActual)
+        {
+            if (tiradaActual < invocacionesJugadorGuardado)
+            {
+                invocacionesJugadorGuardado = tiradaActual;
+            }
+        }
+        else if (nombreJugadorGuardado != "")
+        {
+            if (invocacionesJugadorGuardado == tiradaActual)
+            {
+                cout << "Empataste con el jugador anterior" << endl;
+            }
+            else if (invocacionesJugadorGuardado < tiradaActual)
+            {
+                // el primer ganador sigue siendo el mejor
+                cout << "ganaste, pero" << nombreJugadorGuardado << " lo hizo en" << tiradaActual << endl;
+            }
+            else
+            {
+                // nuevo ganador
+                nombreJugadorGuardado = nombreJugadorActual;
+                invocacionesJugadorGuardado = tiradaActual;
+                cout << "ganaste y lo hiciste en menos tiradas que el anterior" << endl;
+            }
+        }
+    }
+}
+
+// Funcion principal (cdo eligen opcion jugar)
+void jugar(string &nombreJugadorActual, string &nombreJugadorGuardado, int &invocacionesJugadorGuardado, int &victoriasTotales, int demoniosSellados, int CANT_DEMONIOS, int &derrotasTotales, const int TIRADAS_TOTALES, const string NOMBRES_DEMONIOS[], const string ELEMENTOS_SOMBRAS[], int tiradaActual)
+{
+    bool estado_sigilos[5] = {};
+    bool demonios_disponibles[5] = {};
+
+    lore(nombreJugadorActual); // fn que ejecuta el lore del juego
 
     srand(time(NULL));
+    // sran(time(0)) --> inicializo en 0 para numeros al azar
 
     while (tiradaActual < TIRADAS_TOTALES && demoniosSellados < CANT_DEMONIOS)
     {
@@ -159,12 +232,11 @@ void jugar(const string &nombreDescendiente1)
         cout << "\nLOS CINCO DEMONIOS" << endl;
         cout << "-------------------" << endl;
         cout << "Invocacion " << tiradaActual << " de " << TIRADAS_TOTALES << " quedan  " << TIRADAS_TOTALES - tiradaActual << endl;
-        // cout << "DESCENDIENTE: " << nombreDescendiente << endl; //se tiene que quitar para tomar nombre descendiente de forma dinamica
 
         // Llamada a la funcion para saber el estado de los demonios.
         mostrarEstadoDeSigilos(estado_sigilos, NOMBRES_DEMONIOS, ELEMENTOS_SOMBRAS, CANT_DEMONIOS);
-        cout << "-------------------";
-        cout << "Presione ENTER para tirar los dados...";
+        cout << "-------------------" << endl;
+        cout << "Presione ENTER para tirar los dados..." << endl;
         cin.ignore();
         cin.get();
 
@@ -195,29 +267,25 @@ void jugar(const string &nombreDescendiente1)
 
     if (demoniosSellados == CANT_DEMONIOS)
     {
-        cout << "¡Has sellado a todos los demonios! HAS GANADO." << endl;
-
-        victoriasTotales++;
-        invocacionesUsadas = tiradaActual;
-        showMessageVictory(nombreDescendiente1);
+        ganar(victoriasTotales, demoniosSellados, CANT_DEMONIOS, nombreJugadorGuardado, nombreJugadorActual, tiradaActual, invocacionesJugadorGuardado);
     }
+
     else
     {
-        derrotasTotales++;
-        cout << "Se acabaron las invocaciones. HAS PERDIDO." << endl;
-        showMessageDefeat(nombreDescendiente1);
+        derrota(derrotasTotales, nombreJugadorActual, TIRADAS_TOTALES);
     }
 }
 
 // Funcion estadisticas
 
-void estadisticas(const string &nombreDescendiente1)
+void estadisticas(string &nombreJugadorActual, string &nombreJugadorGuardado, int &invocacionesJugadorGuardado, int victoriasTotales, int derrotasTotales, const int CANT_DEMONIOS, const int TIRADAS_TOTALES)
 {
     int totalDePartidas = victoriasTotales + derrotasTotales;
-    int cantDemoniosSellados = 5;
-    cout << "PANTALLA ESTADISTICAS" << endl
+    cout << " ::::: PANTALLA ESTADISTICAS ::::: " << endl
          << endl;
-    cout << nombreDescendiente1 << " fue quien sello a los " << cantDemoniosSellados << " demonios mas rapidamente en " << invocacionesUsadas << " invocaciones" << endl;
+
+    cout
+        << nombreJugadorGuardado << " fue quien sello a los " << CANT_DEMONIOS << " demonios mas rapidamente en " << invocacionesJugadorGuardado << " invocaciones" << endl;
     cout << endl;
     cout << "TOTAL DE PARTIDAS: " << totalDePartidas << endl;
     cout << "VICTORIAS: " << victoriasTotales << endl;
@@ -234,10 +302,28 @@ void estadisticas(const string &nombreDescendiente1)
 
 void creditos()
 {
+    // TODO: Faltan agregar los numeros de los legajos
+    string apellido1 = "Nguyen ";
+    string apellido2 = "Rodriguez ";
+    int legajo1 = 1;
+    int legajo2 = 31;
+    string nombre1 = "Tobias";
+    string nombre2 = "Paula";
 
-    cout << "PANTALLA CREDITOS" << endl
+    cout << " :::::::: CREDITOS :::::::: " << endl
          << endl;
-    cout << "CREDITO CREDITO CREDITO" << endl;
+    cout << " ... Equipo 9 ... " << endl
+         << endl;
+    cout << "Integrantes: " << endl
+         << endl;
+    cout << "* " << apellido1 << nombre1 << " -------- Legajo: " << legajo1 << endl;
+    cout << "* " << apellido2 << nombre2 << " -------- Legajo: " << legajo2 << endl
+         << endl;
+
+    cout << " Presiona una tecla para continuar... " << endl
+         << endl;
+    cin.ignore();
+    cin.get();
 }
 
 void mostrarEstadoDeSigilos(bool estado_sigilos[], const string NomDemonios[], const string ElementosDemonios[], int cantDemonios)
@@ -320,11 +406,11 @@ void mostrarOpcionesDisponibles(bool demonios_disponibles[], const string NOMBRE
 int elegirDemonio(int cantOpciones)
 {
     int eleccion;
-    cout << "¿Que sigilo deseas apagar? ";
+    cout << "¿Que sigilo deseas apagar? " << endl;
     cin >> eleccion;
     while (eleccion < 1 || eleccion > cantOpciones)
     {
-        cout << "Opcion invalida. Ingrese una opcion valida: ";
+        cout << "Opcion invalida. Ingrese una opcion valida: " << endl;
         cin >> eleccion;
     }
     return eleccion;
